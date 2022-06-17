@@ -253,3 +253,105 @@ include("hoge/file2.jl")
 include("hoge/file3.jl")
 end
 ```
+## ファイルの読み書き
+### ファイルの配列としての読み込み
+```julia
+julia> f=open("/Users/yoko-h/Desktop/Julia_practice/hoge.txt")
+IOStream(<file /Users/yoko-h/Desktop/Julia_practice/hoge.txt>)
+julia> readlines(f)
+1-element Vector{String}:
+ "Hello Julia!"
+julia> close(f)
+```
+### 1行ずつの読み込み
+```julia
+julia> f=open("/Users/yoko-h/Desktop/Julia_practice/hoge.txt","r")
+IOStream(<file /Users/yoko-h/Desktop/Julia_practice/hoge.txt>)
+julia> for line in eachline(f)
+       println(line)
+       end
+Hello Julia!
+julia> close(f)
+```
+
+```julia
+julia> open("/Users/yoko-h/Desktop/Julia_practice/hoge.txt","r") do f
+           for line in eachline(f)
+               println(line)
+           end
+       end
+Hello Julia!
+```
+
+### データの書き込み
+```julia
+julia> open("/Users/yoko-h/Desktop/Julia_practice/hoge.txt","w") do f
+           println(f,"Line1")
+       end
+```
+
+
+### DataFramesの利用
+#### CSV形式でのデータ書き込み
+```julia
+julia> using DataFrames
+
+julia> using CSV
+
+julia> x=rand(4)
+4-element Vector{Float64}:
+ 0.3790240370540413
+ 0.8673773887041707
+ 0.6129051811911946
+ 0.0963814533600228
+
+julia> y=rand(4)
+4-element Vector{Float64}:
+ 0.6567748575760815
+ 0.583725243812666
+ 0.5821007015770637
+ 0.486700661573537
+
+julia> f=DataFrame(x=x,y=y)
+4×2 DataFrame
+ Row │ x          y        
+     │ Float64    Float64  
+─────┼─────────────────────
+   1 │ 0.379024   0.656775
+   2 │ 0.867377   0.583725
+   3 │ 0.612905   0.582101
+   4 │ 0.0963815  0.486701
+
+julia> CSV.write("/Users/yoko-h/Desktop/Julia_practice/output.csv")
+"/Users/yoko-h/Desktop/Julia_practice/output.csv"
+```
+
+#### CSV形式データの読み込み
+```julia
+julia> data=CSV.read("/Users/yoko-h/Desktop/Julia_practice/output.csv",DataFrame)
+4×2 DataFrame
+ Row │ x          y        
+     │ Float64    Float64  
+─────┼─────────────────────
+   1 │ 0.379024   0.656775
+   2 │ 0.867377   0.583725
+   3 │ 0.612905   0.582101
+   4 │ 0.0963815  0.486701
+
+julia> data
+4×2 DataFrame
+ Row │ x          y        
+     │ Float64    Float64  
+─────┼─────────────────────
+   1 │ 0.379024   0.656775
+   2 │ 0.867377   0.583725
+   3 │ 0.612905   0.582101
+   4 │ 0.0963815  0.486701
+
+julia> data.x
+4-element Vector{Float64}:
+ 0.3790240370540413
+ 0.8673773887041707
+ 0.6129051811911946
+ 0.0963814533600228
+```
