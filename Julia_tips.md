@@ -52,6 +52,17 @@ julia> chars = Vector{Char}(s)
  "こ"
 ```
 
+## 演算
+### 小数点以下切り捨て
+負方向に最も近い整数へと丸める
+```julia
+julia> floor(-1.1)
+-2.0
+
+julia> floor( 1.1)
+1.0
+```
+
 ## リストへの操作
 ### 末尾に要素を加える
 ```julia
@@ -355,3 +366,7 @@ julia> data.x
  0.6129051811911946
  0.0963814533600228
 ```
+
+
+## Packageに関する情報
+- [Primes.jl](https://juliamath.github.io/Primes.jl/v0.3/): 素数に対する演算パッケージ, 素因数分解とか素数求めるもの全般.

@@ -89,3 +89,27 @@ list = []
 list = [1, 2]
 push!(list, 3)
 pop!(list)
+
+using Plots
+plotly()
+plot(sin)
+
+A = [x^2 + y^2 for x in -1:01:1, y in -1:0.2:1]
+
+plot(A)
+contour(A)
+heatmap(A)
+
+wireframe(A)
+
+surface(A)
+
+plot(x -> x^4 - 20 * x^2 + 1)
+
+savefig("hoge2.png")
+
+using Interact
+
+@manipulate for x in 0:10
+    x^2
+end
