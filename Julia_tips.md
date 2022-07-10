@@ -22,6 +22,24 @@ julia> hello * " " * julia
 "Hello Julia"
 ```
 
+### 文字列の複数回出力
+```julia
+julia> hoge="hoge"
+"hoge"
+
+julia> hoge^5
+"hogehogehogehogehoge"
+```
+
+### 文字列のうち, 特定の範囲の文字を取り込む
+```julia
+julia> hoge[1]
+'h': ASCII/Unicode U+0068 (category Ll: Letter, lowercase)
+
+julia> hoge[2:4]
+"oge"
+```
+
 ### 評価結果を文字列に埋め込む
 ```julia
 julia> "1 + 2 = $(1 + 2)"
@@ -105,6 +123,23 @@ julia> deleteat!(list,3)
 2-element Vector{Int64}:
  1
  4
+```
+
+### 要素をソートする. 
+```julia
+julia> a1=[10,5,-7,0]
+4-element Vector{Int64}:
+ 10
+  5
+ -7
+  0
+
+julia> sort(a1)
+4-element Vector{Int64}:
+ -7
+  0
+  5
+ 10
 ```
 
 ## 配列の操作
@@ -333,7 +368,7 @@ julia> f=DataFrame(x=x,y=y)
    3 │ 0.612905   0.582101
    4 │ 0.0963815  0.486701
 
-julia> CSV.write("/Users/yoko-h/Desktop/Julia_practice/output.csv")
+julia> CSV.write("/Users/yoko-h/Desktop/Julia_practice/output.csv",f)
 "/Users/yoko-h/Desktop/Julia_practice/output.csv"
 ```
 
@@ -370,3 +405,4 @@ julia> data.x
 
 ## Packageに関する情報
 - [Primes.jl](https://juliamath.github.io/Primes.jl/v0.3/): 素数に対する演算パッケージ, 素因数分解とか素数求めるもの全般.
+- [Clustering.jl](https://juliastats.org/Clustering.jl/stable/): クラスタリングに対する演算パッケージ
