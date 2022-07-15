@@ -402,6 +402,18 @@ julia> data.x
  0.0963814533600228
 ```
 
+#### 条件抽出
+```julia
+julia> df[df.A.>3,:]
+2×4 DataFrame
+│ Row │ A     │ B        │ C      │ D     │
+│     │ Int64 │ Float64  │ String │ Int64 │
+├─────┼───────┼──────────┼────────┼───────┤
+│ 1   │ 4     │ 0.578579 │ A      │ 160   │
+│ 2   │ 5     │ 0.142839 │ B      │ 200   │
+
+```
+
 
 ## Packageに関する情報
 - [Primes.jl](https://juliamath.github.io/Primes.jl/v0.3/): 素数に対する演算パッケージ, 素因数分解とか素数求めるもの全般.
