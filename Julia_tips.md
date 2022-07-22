@@ -1,7 +1,28 @@
 # Julia Tips
 juliaを使って学んだtipsを書き溜めます.
 
+## 型の操作
+### 数値精度を上げる
+```julia
+julia> π
+π = 3.1415926535897...
+
+julia> BigFloat(π)
+3.141592653589793238462643383279502884197169399375105820974944592307816406286198
+```
+
 ## 文字列の操作
+### 複数文字出力のタブ間隔空け
+```julia
+julia> a=4; b=3;
+
+julia> println(a,b)
+43
+
+julia> println(a,"\t",b)
+4       3
+```
+
 ### 文字列に含まれる文字の取得
 ```julia
 julia> s = "Hello Julia"
@@ -71,6 +92,31 @@ julia> chars = Vector{Char}(s)
 ```
 
 ## 演算
+### 分数の計算
+```julia
+julia> 1//2+1//3
+5//6
+```
+
+### 複素共役
+```julia
+julia> conj(4+5im)
+4 - 5im
+```
+
+### コンビネーション
+$_nC_m$の計算
+```julia
+julia> binomial(10,3)
+120
+```
+
+### 階乗
+```julia
+julia> factorial(5)
+120
+```
+
 ### 小数点以下切り捨て
 負方向に最も近い整数へと丸める
 ```julia
@@ -79,6 +125,38 @@ julia> floor(-1.1)
 
 julia> floor( 1.1)
 1.0
+```
+
+### パイプライン演算
+以下は同様の演算
+```julia
+julia> f(n,x)=cos(n*acos(x))
+f (generic function with 1 method)
+
+julia> g(x)=n*acos(x) |> cos
+g (generic function with 1 method)
+```
+
+### ifelse条件分岐関数
+最初の条件式がTrueなら2番目, falseなら3番目が返ってくる.
+```julia
+julia> ReLu(x)=ifelse(x<0,zero(x),x)
+ReLu (generic function with 1 method)
+```
+
+### 範囲指定
+```julia
+julia> 1:2.5:10
+1.0:2.5:8.5
+
+julia> range(1,10,step=2.5)
+1.0:2.5:8.5
+```
+
+### 等間隔で任意の点数の範囲をつくる
+```julia
+julia> range(0,2pi,length=10)
+0.0:0.6981317007977318:6.283185307179586
 ```
 
 ## リストへの操作
@@ -223,6 +301,51 @@ julia> ndims(B)
 2
 ```
 
+### ベクトルの定義
+```julia
+julia> A=[1,2]
+2-element Vector{Int64}:
+ 1
+ 2
+```
+
+### 行列の定義
+```julia
+julia> B=[1 2]
+1×2 Matrix{Int64}:
+ 1  2
+
+julia> B=[1 2
+       3 4]
+2×2 Matrix{Int64}:
+ 1  2
+ 3  4
+```
+
+### 行列から列を取り出す
+```julia
+julia> A=[1 2 3
+       4 5 6
+       7 8 9]
+3×3 Matrix{Int64}:
+ 1  2  3
+ 4  5  6
+ 7  8  9
+
+julia> A[:,1]
+3-element Vector{Int64}:
+ 1
+ 4
+ 7
+
+julia> A[begin:end,1]
+3-element Vector{Int64}:
+ 1
+ 4
+ 7
+```
+
+
 ## 多次元配列
 ### 配列の各要素に関数を適用するmap
 ```julia
@@ -288,6 +411,72 @@ julia> view(A,1:2,:)
  0.0421387  0.229252  0.781823
  0.0483192  0.430909  0.276979
 ```
+
+## 線形代数演算
+### 内積
+```julia
+julia> using LinearAlgebra
+julia> a=[3,2im]
+2-element Vector{Complex{Int64}}:
+ 3 + 0im
+ 0 + 2im
+
+julia> dot(a,a)
+13 + 0im
+
+julia> a⋅a
+13 + 0im
+```
+
+### 外積
+```julia
+julia> b=[1,2,3]
+3-element Vector{Int64}:
+ 1
+ 2
+ 3
+
+julia> cross(b,b)
+3-element Vector{Int64}:
+ 0
+ 0
+ 0
+```
+
+### 連立方程式を解く
+$A\bm{x}=\bm{b}$を解く.
+```julia
+julia> x=A\b
+3-element Vector{ComplexF64}:
+ -0.25944073351059127 - 1.6786716182797186im
+    2.735770759603039 - 0.590531713280667im
+ -0.13193090770994587 - 0.838912841112185im
+```
+
+### 複素共役
+```julia
+julia> A=rand(ComplexF64,3,3)
+3×3 Matrix{ComplexF64}:
+ 0.923208+0.0229548im  0.0689094+0.918959im  0.981515+0.714355im
+ 0.337755+0.815195im   0.0720902+0.420806im  0.334058+0.378507im
+ 0.229002+0.0795494im   0.780935+0.466811im  0.383953+0.672782im
+
+julia> A'
+3×3 adjoint(::Matrix{ComplexF64}) with eltype ComplexF64:
+  0.923208-0.0229548im   0.337755-0.815195im  0.229002-0.0795494im
+ 0.0689094-0.918959im   0.0720902-0.420806im  0.780935-0.466811im
+  0.981515-0.714355im    0.334058-0.378507im  0.383953-0.672782im
+```
+
+### 転置
+```julia
+julia> transpose(A)
+3×3 transpose(::Matrix{ComplexF64}) with eltype ComplexF64:
+  0.923208+0.0229548im   0.337755+0.815195im  0.229002+0.0795494im
+ 0.0689094+0.918959im   0.0720902+0.420806im  0.780935+0.466811im
+  0.981515+0.714355im    0.334058+0.378507im  0.383953+0.672782im
+```
+
 
 ## モジュールの活用
 ### ファイルの分割
