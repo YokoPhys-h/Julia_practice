@@ -309,6 +309,48 @@ julia> A=[1,2]
  2
 ```
 
+### 配列の要素の追加と消去
+基本的にはあらかじめサイズがわかっている方が早いが, 途中でサイズを変えたい場合.
+```julia
+julia> A=Float64[]
+Float64[]
+
+julia> push!(A,2)
+1-element Vector{Float64}:
+ 2.0
+
+julia> push!(A,3,4,5)
+4-element Vector{Float64}:
+ 2.0
+ 3.0
+ 4.0
+ 5.0
+
+julia> deleteat!(A,2)
+3-element Vector{Float64}:
+ 2.0
+ 4.0
+ 5.0
+
+julia> deleteat!(A,2:3)
+1-element Vector{Float64}:
+ 2.0
+```
+
+### 2つの行列の合体
+```julia
+julia> A=[1,2,3]; B=[3,4,5];
+
+julia> append!(A,B)
+6-element Vector{Int64}:
+ 1
+ 2
+ 3
+ 3
+ 4
+ 5
+```
+
 ### 行列の定義
 ```julia
 julia> B=[1 2]
@@ -345,8 +387,13 @@ julia> A[begin:end,1]
  7
 ```
 
+### 配列形状の変更
+```julia
+julia> reshape(A,(1,4))
+1×4 Matrix{Int64}:
+ 1  3  2  4
+```
 
-## 多次元配列
 ### 配列の各要素に関数を適用するmap
 ```julia
 julia> A=rand(2,3)
@@ -358,6 +405,28 @@ julia> map(x->x+1.0,A)
 2×3 Matrix{Float64}:
  1.23442  1.79138  1.41147
  1.35131  1.48917  1.65849
+```
+
+### 要素への一括適用broadcast
+```julia
+julia> A=[1 2 
+       3 4]
+2×2 Matrix{Int64}:
+ 1  2
+ 3  4
+
+julia> A.+2
+2×2 Matrix{Int64}:
+ 3  4
+ 5  6
+
+julia> f(x)=exp(x)
+f (generic function with 1 method)
+
+julia> f.(A)
+2×2 Matrix{Float64}:
+  2.71828   7.38906
+ 20.0855   54.5982
 ```
 
 ### すべての要素を集約して行う演算
@@ -412,6 +481,34 @@ julia> view(A,1:2,:)
  0.0483192  0.430909  0.276979
 ```
 
+## 便利な配列のような型
+### 集合型関数Set
+集合を表す型. 重複しない要素が入った配列
+```julia
+julia> a=Set()
+Set{Any}()
+
+julia> push!(a,4,"banana",3)
+Set{Any} with 3 elements:
+  4
+  "banana"
+  3
+
+julia> push!(a,4) ## 既に持っているものをpush!しても変わらない.
+Set{Any} with 3 elements:
+  4
+  "banana"
+  3
+```
+
+Setの型を指定する場合は以下.
+```julia
+julia> a=Set{Float64}[]
+Set{Float64}[]
+```
+
+
+
 ## 線形代数演算
 ### 内積
 ```julia
@@ -453,6 +550,62 @@ julia> x=A\b
  -0.13193090770994587 - 0.838912841112185im
 ```
 
+### 固有値方程式を解く
+固有値問題$A\bm{v}_i=e_{i}\bm{v}_i$を解く.
+```julia
+julia> e,v=eigen(A)
+Eigen{ComplexF64, ComplexF64, Matrix{ComplexF64}, Vector{ComplexF64}}
+values:
+3-element Vector{ComplexF64}:
+ 0.05949837933710588 + 0.02707888896953431im
+   0.322147815491434 + 0.5948045439933649im
+  1.6972247251595767 + 1.3353684086229252im
+vectors:
+3×3 Matrix{ComplexF64}:
+   0.68933+0.0im       -0.0819879-0.217994im  0.544277+0.0804345im
+ -0.561999-0.141075im    0.812305+0.0im       0.681438+0.0im
+ -0.299451+0.315291im   -0.466251+0.261779im  0.467324-0.1206im
+```
+i番目の固有値e[i]に対応するを取り出したい場合
+```julia
+julia> v[:,2]
+3-element Vector{ComplexF64}:
+ -0.08198789750721987 - 0.21799387441734192im
+   0.8123045468392248 + 0.0im
+ -0.46625066420713185 + 0.26177909903120955im
+```
+固有値のみ
+```julia
+julia> eigvals(A)
+3-element Vector{ComplexF64}:
+ 0.05949837933710588 + 0.02707888896953431im
+   0.322147815491434 + 0.5948045439933649im
+  1.6972247251595767 + 1.3353684086229252im
+```
+固有ベクトルのみ
+```julia
+julia> eigvecs(A)
+3×3 Matrix{ComplexF64}:
+   0.68933+0.0im       -0.0819879-0.217994im  0.544277+0.0804345im
+ -0.561999-0.141075im    0.812305+0.0im       0.681438+0.0im
+ -0.299451+0.315291im   -0.466251+0.261779im  0.467324-0.1206im
+```
+
+### 行列式
+```julia
+julia> det(A)
+-0.053712950983665284 + 0.07895726691355046im
+```
+
+### 逆行列
+```julia
+julia> inv(A)
+3×3 Matrix{ComplexF64}:
+  8.09913-3.51724im   -2.46817+2.22976im  -5.39516-2.2121im
+ -6.75595+1.08291im     2.8675-2.12842im   3.50308+3.4917im
+ -2.04928+4.93101im  0.0607824-1.68335im   4.02453-2.27731im
+```
+
 ### 複素共役
 ```julia
 julia> A=rand(ComplexF64,3,3)
@@ -475,6 +628,37 @@ julia> transpose(A)
   0.923208+0.0229548im   0.337755+0.815195im  0.229002+0.0795494im
  0.0689094+0.918959im   0.0720902+0.420806im  0.780935+0.466811im
   0.981515+0.714355im    0.334058+0.378507im  0.383953+0.672782im
+```
+
+## パラメータや変数をまとめる: struct
+struct: 一度定義したら中身を変更できない.
+mutable struct: 中身の変更が可能.
+```julia
+julia> m1=0.3; r1=[0.2,0.5,0.1]; v1=[0.3,2,-1];
+
+julia> mutable struct Atom
+       r
+       v
+       mass
+       end
+
+julia> atom1= Atom(r1, v1, m1)
+Atom([0.2, 0.5, 0.1], [0.3, 2.0, -1.0], 0.3)
+
+julia> atom1.r
+3-element Vector{Float64}:
+ 0.2
+ 0.5
+ 0.1
+
+julia> atom1.v
+3-element Vector{Float64}:
+  0.3
+  2.0
+ -1.0
+
+julia> atom1.mass
+0.3
 ```
 
 
