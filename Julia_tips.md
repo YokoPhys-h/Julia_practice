@@ -132,7 +132,7 @@ julia> floor( 1.1)
 ```julia
 julia> f(n,x)=cos(n*acos(x))
 f (generic function with 1 method)
-
+ 
 julia> g(x)=n*acos(x) |> cos
 g (generic function with 1 method)
 ```
