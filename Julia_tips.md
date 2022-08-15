@@ -159,6 +159,36 @@ julia> range(0,2pi,length=10)
 0.0:0.6981317007977318:6.283185307179586
 ```
 
+### 指定の底でのlog
+```julia
+julia> log(2,8)
+3.0
+```
+
+## 乱数
+### 乱数の生成
+```julia
+julia> rand(2,3) ## 0~1の乱数
+2×3 Matrix{Float64}:
+ 0.622121  0.568923   0.34898
+ 0.941021  0.0742494  0.624339
+
+julia> rand(Int64,2,3)
+2×3 Matrix{Int64}:
+  5661848704774868963   5803618174787596102  -3111274951104142376
+ -5369017176417626184  -5434974966175551714  -2108369232511630294
+```
+
+### 指定範囲の乱数
+```julia
+julia> rand(10:20, 3, 3)
+3×3 Matrix{Int64}:
+ 12  10  11
+ 20  18  18
+ 16  19  11
+```
+
+
 ## 配列への操作
 ### 末尾に要素を加える
 ```julia
@@ -309,6 +339,21 @@ julia> ndims(B)
 2
 ```
 
+### 配列の各要素に関数を適用するmap
+```julia
+julia> collection=[1, 2, 4]
+3-element Vector{Int64}:
+ 1
+ 2
+ 4
+
+julia> map(x -> x^2, collection)
+3-element Vector{Int64}:
+  1
+  4
+ 16
+```
+
 ### ベクトルの定義
 ```julia
 julia> A=[1,2]
@@ -415,8 +460,34 @@ julia> map(x->x+1.0,A)
  1.35131  1.48917  1.65849
 ```
 
+### すべての要素に演算子を適用するreduce
+```julia
+julia> A=collect(reshape(1:10,2,5))
+2×5 Matrix{Int64}:
+ 1  3  5  7   9
+ 2  4  6  8  10
+
+julia> reduce(+,A)
+55
+```
+
 ### 要素への一括適用broadcast
 ```julia
+julia> collection=[1, 2, 4]
+3-element Vector{Int64}:
+ 1
+ 2
+ 4
+
+julia> f(x)=exp(x)
+f (generic function with 1 method)
+
+julia> broadcast(f,collection)
+3-element Vector{Float64}:
+  2.718281828459045
+  7.38905609893065
+ 54.598150033144236
+
 julia> A=[1 2 
        3 4]
 2×2 Matrix{Int64}:
@@ -437,16 +508,7 @@ julia> f.(A)
  20.0855   54.5982
 ```
 
-### すべての要素を集約して行う演算
-```julia
-julia> A=collect(reshape(1:10,2,5))
-2×5 Matrix{Int64}:
- 1  3  5  7   9
- 2  4  6  8  10
 
-julia> reduce(+,A)
-55
-```
 
 ### 要素にフィルタリングをして取り出す
 ```julia
@@ -638,6 +700,20 @@ julia> transpose(A)
   0.981515+0.714355im    0.334058+0.378507im  0.383953+0.672782im
 ```
 
+### トレース
+```julia
+julia> using LinearAlgebra
+
+julia> A=rand(1:10,3,3)
+3×3 Matrix{Int64}:
+ 6  7  1
+ 1  5  7
+ 8  3  7
+
+julia> tr(A)
+18
+```
+
 ## パラメータや変数をまとめる: struct
 struct: 一度定義したら中身を変更できない.
 mutable struct: 中身の変更が可能.
@@ -755,36 +831,59 @@ julia> CSV.write("/Users/yoko-h/Desktop/Julia_practice/output.csv",f)
 
 #### CSV形式データの読み込み
 ```julia
-julia> data=CSV.read("/Users/yoko-h/Desktop/Julia_practice/output.csv",DataFrame)
-4×2 DataFrame
- Row │ x          y        
-     │ Float64    Float64  
-─────┼─────────────────────
-   1 │ 0.379024   0.656775
-   2 │ 0.867377   0.583725
-   3 │ 0.612905   0.582101
-   4 │ 0.0963815  0.486701
+julia> df=CSV.read("/Users/yoko-h/Desktop/Julia_practice/output.csv",DataFrame)
+11×8 DataFrame
+ Row │ x1     x2     x3     x4     y1       y2       y3       y4      
+     │ Int64  Int64  Int64  Int64  Float64  Float64  Float64  Float64 
+─────┼────────────────────────────────────────────────────────────────
+   1 │    10     10     10      8     8.04     9.14     7.46     6.58
+   2 │     8      8      8      8     6.95     8.14     6.77     5.76
+   3 │    13     13     13      8     7.58     8.74    12.74     7.71
+  ⋮  │   ⋮      ⋮      ⋮      ⋮       ⋮        ⋮        ⋮        ⋮
+   9 │    12     12     12      8    10.84     9.13     8.15     5.56
+  10 │     7      7      7      8     4.82     7.26     6.42     7.91
+  11 │     5      5      5      8     5.68     4.74     5.73     6.89
+                                                        5 rows omitted
 
-julia> data
-4×2 DataFrame
- Row │ x          y        
-     │ Float64    Float64  
-─────┼─────────────────────
-   1 │ 0.379024   0.656775
-   2 │ 0.867377   0.583725
-   3 │ 0.612905   0.582101
-   4 │ 0.0963815  0.486701
+julia> df.x1
+11-element Vector{Int64}:
+ 10
+  8
+ 13
+  9
+ 11
+ 14
+  6
+  4
+ 12
+  7
+  5
 
-julia> data.x
-4-element Vector{Float64}:
- 0.3790240370540413
- 0.8673773887041707
- 0.6129051811911946
- 0.0963814533600228
+julia> df[:,"x1"]
+11-element Vector{Int64}:
+ 10
+  8
+ 13
+  9
+ 11
+ 14
+  6
+  4
+ 12
+  7
+  5
 ```
+
 
 #### 条件抽出
 ```julia
+julia> df[1:4, :x1]
+4-element Vector{Int64}:
+ 10
+  8
+ 13
+  9
+
 julia> df[df.A.>3,:]
 2×4 DataFrame
 │ Row │ A     │ B        │ C      │ D     │
@@ -794,6 +893,109 @@ julia> df[df.A.>3,:]
 │ 2   │ 5     │ 0.142839 │ B      │ 200   │
 
 ```
+
+### 特定の文字列を含むものを出力
+```julia
+julia> select(df,r"x")
+11×4 DataFrame
+ Row │ x1     x2     x3     x4    
+     │ Int64  Int64  Int64  Int64 
+─────┼────────────────────────────
+   1 │    10     10     10      8
+   2 │     8      8      8      8
+   3 │    13     13     13      8
+  ⋮  │   ⋮      ⋮      ⋮      ⋮
+   9 │    12     12     12      8
+  10 │     7      7      7      8
+  11 │     5      5      5      8
+                    5 rows omitted
+```
+
+### DataFrame内のデータの平均と分散
+```julia
+julia> describe(df, :mean, :std)
+8×3 DataFrame
+ Row │ variable  mean     std     
+     │ Symbol    Float64  Float64 
+─────┼────────────────────────────
+   1 │ x1        9.0      3.31662
+   2 │ x2        9.0      3.31662
+   3 │ x3        9.0      3.31662
+   4 │ x4        9.0      3.31662
+   5 │ y1        7.50091  2.03157
+   6 │ y2        7.50091  2.03166
+   7 │ y3        7.5      2.03042
+   8 │ y4        7.50091  2.03058
+```
+
+### DataFrame内のデータの行列変換
+```julia
+julia> Matrix(select(df, r"x"))
+11×4 Matrix{Int64}:
+ 10  10  10   8
+  8   8   8   8
+ 13  13  13   8
+  9   9   9   8
+ 11  11  11   8
+ 14  14  14   8
+  6   6   6   8
+  4   4   4  19
+ 12  12  12   8
+  7   7   7   8
+  5   5   5   8
+```
+
+## PythonおよびRパッケージ利用
+### PyCallの利用
+```julia
+julia> using PyCall
+
+julia> math = pyimport("math") ##ここに入れたいパッケージを入れる. 自身で定義した関数も利用可能.
+PyObject <module 'math' from '/Users/yoko-h/.julia/conda/3/lib/python3.9/lib-dynload/math.cpython-39-darwin.so'>
+
+julia> math.sin(math.pi/4)
+0.7071067811865475
+```
+
+## Plotsに関する情報
+### 各種設定
+```julia
+julia> using Plots
+
+julia> plot(
+      sin,
+       -2π, 2π
+       )
+
+julia> plot(
+       x -> sin(x)^2 + cos(x)^3,
+       -2π, 2π, ## 範囲
+       label="hoge",
+       xlabel="val",
+       ylabel="hoge",
+       title="Behavior"
+       )
+
+julia> plot(x, y, 
+            seriestype=:scatter, ## 散布図
+            thickness_scaling = 0.7, ## 太さ
+            opacity=0.8 ## 透明度
+            )
+```
+
+### 2つ以上のグラフを同時プロット
+```julia
+julia> x=[1:10];
+
+julia> y1, y2 = rand(10), rand(10);
+
+julia> plot(x, y1, label="y1")
+
+julia> plot!(x, y2, label="y2")
+
+julia> plot(x, [y1, y2], label=["First"  "Second"])
+```
+
 
 
 ## Packageに関する情報
