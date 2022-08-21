@@ -233,6 +233,31 @@ julia> deleteat!(list,3)
  4
 ```
 
+### 重複を消去して取得する(ユニークな値を返す）.
+```julia
+julia> unique([1, 2, 6, 2])
+3-element Array{Int64,1}:
+ 1
+ 2
+ 6
+
+julia> unique(Real[1, 1.0, 2])
+2-element Array{Real,1}:
+ 1
+ 2
+```
+
+### 関数を適用した時にユニークな値を返す
+```julia
+julia> unique(x -> x^2, [1, -1, 3, -3, 4])
+3-element Array{Int64,1}:
+ 1
+ 3
+ 4
+```
+
+
+
 ### 要素をソートする. 
 ```julia
 julia> a1=[10,5,-7,0]
@@ -248,6 +273,15 @@ julia> sort(a1)
   0
   5
  10
+```
+
+#### 逆順ソート
+```julia
+julia> sort([2,3,1], rev=true)
+3-element Array{Int64,1}:
+ 3
+ 2
+ 1
 ```
 
 ### 最大値最小値を取得する. 
@@ -829,6 +863,76 @@ julia> CSV.write("/Users/yoko-h/Desktop/Julia_practice/output.csv",f)
 "/Users/yoko-h/Desktop/Julia_practice/output.csv"
 ```
 
+#### TXT形式データの読み込み
+```julia
+julia> #データダウンロード
+julia> download("https://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data-original", "auto.txt") ## データダウンロード
+"auto.txt"
+
+julia> # String形式で読み込み
+julia> raw_str=read("/Users/yoko-h/Desktop/Julia_practice/auto.txt",String) ## String形式で読み込み
+"18.0   8.   307.0      130.0      3504.      12.0   70.  1.\t\"chevrolet chevelle malibu\"\n15.0   8.   350.0      165.0      3693.      11.5   70.  1.\t\"buick skylark 320\"\n18.0   8.   318.0      150.0      3436.      11.0   70.  1.\t\"plymouth satellite\"\n16.0   8.   304.0      150.0      3433.      12.0   70.  1.\t\"amc rebel sst\"\n17.0   8.   302.0      140.0      3449.      10.5   70.  1.\t\"ford torino\"\n15.0   8.   429.0      198.0      4341.      10.0   70.  1.\t" ⋯ 31232 bytes ⋯ " 2.2\"\n27.0   4.   151.0      90.00      2950.      17.3   82.  1.\t\"chevrolet camaro\"\n27.0   4.   140.0      86.00      2790.      15.6   82.  1.\t\"ford mustang gl\"\n44.0   4.   97.00      52.00      2130.      24.6   82.  2.\t\"vw pickup\"\n32.0   4.   135.0      84.00      2295.      11.6   82.  1.\t\"dodge rampage\"\n28.0   4.   120.0      79.00      2625.      18.6   82.  1.\t\"ford ranger\"\n31.0   4.   119.0      82.00      2720.      19.4   82.  1.\t\"chevy s-10\"\n"
+
+julia> #タブをスペースに
+julia> str_no_tab = replace(raw_str, '\t' => ' ')
+"18.0   8.   307.0      130.0      3504.      12.0   70.  1. \"chevrolet chevelle malibu\"\n15.0   8.   350.0      165.0      3693.      11.5   70.  1. \"buick skylark 320\"\n18.0   8.   318.0      150.0      3436.      11.0   70.  1. \"plymouth satellite\"\n16.0   8.   304.0      150.0      3433.      12.0   70.  1. \"amc rebel sst\"\n17.0   8.   302.0      140.0      3449.      10.5   70.  1. \"ford torino\"\n15.0   8.   429.0      198.0      4341.      10.0   70.  1. " ⋯ 31232 bytes ⋯ " 2.2\"\n27.0   4.   151.0      90.00      2950.      17.3   82.  1. \"chevrolet camaro\"\n27.0   4.   140.0      86.00      2790.      15.6   82.  1. \"ford mustang gl\"\n44.0   4.   97.00      52.00      2130.      24.6   82.  2. \"vw pickup\"\n32.0   4.   135.0      84.00      2295.      11.6   82.  1. \"dodge rampage\"\n28.0   4.   120.0      79.00      2625.      18.6   82.  1. \"ford ranger\"\n31.0   4.   119.0      82.00      2720.      19.4   82.  1. \"chevy s-10\"\n"
+
+julia> # 読み込み形式変換
+julia> io=IOBuffer(str_no_tab)
+IOBuffer(data=UInt8[...], readable=true, writable=false, seekable=true, append=false, size=32149, maxsize=Inf, ptr=1, mark=-1)
+
+julia> # 読み込み
+julia> df=CSV.File(io,
+       delim=' ',## 分割間隔
+       ignorerepeated=true,# 行を揃えて区切られている場合に必要. (各々の間隔が違うため)
+       header=[:mpg, :cylinders, :displacement, :horsepower, :weight, :acceleration, :year, :origin, :name],## 列名
+       missingstring="NA" ## 欠損した値の表示方法) |> DataFrame
+406×9 DataFrame
+ Row │ mpg       cylinders  displacement  horsepower  weight   acceleration  year     origin   name                      
+     │ Float64?  Float64    Float64       Float64?    Float64  Float64       Float64  Float64  String                    
+─────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │     18.0        8.0         307.0       130.0   3504.0          12.0     70.0      1.0  chevrolet chevelle malibu
+   2 │     15.0        8.0         350.0       165.0   3693.0          11.5     70.0      1.0  buick skylark 320
+   3 │     18.0        8.0         318.0       150.0   3436.0          11.0     70.0      1.0  plymouth satellite
+  ⋮  │    ⋮          ⋮           ⋮            ⋮          ⋮          ⋮           ⋮        ⋮                 ⋮
+ 404 │     32.0        4.0         135.0        84.0   2295.0          11.6     82.0      1.0  dodge rampage
+ 405 │     28.0        4.0         120.0        79.0   2625.0          18.6     82.0      1.0  ford ranger
+ 406 │     31.0        4.0         119.0        82.0   2720.0          19.4     82.0      1.0  chevy s-10
+                                                                                                         400 rows omitted
+```
+
+#### 読み込んだデータの列名の表示
+```julia
+julia> name(df)
+```
+
+#### 欠損値のカウント
+```julia
+julia> sum(count(ismissing, col) for col in eachcol(df))
+14
+
+julia> count(ismissing, Matrix(df))
+14
+```
+
+#### 欠損値の0置き換え
+```julia
+julia> dropmissing(df)
+392×10 DataFrame
+ Row │ mpg      cylinders  displacement  horsepower  weight   acceleration  year     origin   name                       brand     
+     │ Float64  Float64    Float64       Float64     Float64  Float64       Float64  Float64  String                     SubStrin… 
+─────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │    18.0        8.0         307.0       130.0   3504.0          12.0     70.0      1.0  chevrolet chevelle malibu  chevrolet
+   2 │    15.0        8.0         350.0       165.0   3693.0          11.5     70.0      1.0  buick skylark 320          buick
+   3 │    18.0        8.0         318.0       150.0   3436.0          11.0     70.0      1.0  plymouth satellite         plymouth
+  ⋮  │    ⋮         ⋮           ⋮            ⋮          ⋮          ⋮           ⋮        ⋮                 ⋮                  ⋮
+ 390 │    32.0        4.0         135.0        84.0   2295.0          11.6     82.0      1.0  dodge rampage              dodge
+ 391 │    28.0        4.0         120.0        79.0   2625.0          18.6     82.0      1.0  ford ranger                ford
+ 392 │    31.0        4.0         119.0        82.0   2720.0          19.4     82.0      1.0  chevy s-10                 chevy
+                                                                                                                   386 rows omitted
+```
+
+
 #### CSV形式データの読み込み
 ```julia
 julia> df=CSV.read("/Users/yoko-h/Desktop/Julia_practice/output.csv",DataFrame)
@@ -894,7 +998,7 @@ julia> df[df.A.>3,:]
 
 ```
 
-### 特定の文字列を含むものを出力
+#### 特定の文字列を含むものを出力
 ```julia
 julia> select(df,r"x")
 11×4 DataFrame
@@ -911,7 +1015,8 @@ julia> select(df,r"x")
                     5 rows omitted
 ```
 
-### DataFrame内のデータの平均と分散
+
+#### DataFrame内のデータの平均と分散
 ```julia
 julia> describe(df, :mean, :std)
 8×3 DataFrame
@@ -928,7 +1033,7 @@ julia> describe(df, :mean, :std)
    8 │ y4        7.50091  2.03058
 ```
 
-### DataFrame内のデータの行列変換
+#### DataFrame内のデータの行列変換
 ```julia
 julia> Matrix(select(df, r"x"))
 11×4 Matrix{Int64}:
@@ -943,6 +1048,176 @@ julia> Matrix(select(df, r"x"))
  12  12  12   8
   7   7   7   8
   5   5   5   8
+```
+
+#### 読み込んだデータ中の分割(split)
+##### 空白で分ける
+```julia
+julia> df.name
+406-element Vector{String}:
+ "chevrolet chevelle malibu"
+ "buick skylark 320"
+ "plymouth satellite"
+ "amc rebel sst"
+ "ford torino"
+ ⋮
+ "ford mustang gl"
+ "vw pickup"
+ "dodge rampage"
+ "ford ranger"
+ "chevy s-10"
+
+julia> split.(df.name)
+406-element Vector{Vector{SubString{String}}}:
+ ["chevrolet", "chevelle", "malibu"]
+ ["buick", "skylark", "320"]
+ ["plymouth", "satellite"]
+ ["amc", "rebel", "sst"]
+ ["ford", "torino"]
+ ⋮
+ ["ford", "mustang", "gl"]
+ ["vw", "pickup"]
+ ["dodge", "rampage"]
+ ["ford", "ranger"]
+ ["chevy", "s-10"]
+```
+
+#### 既存データへの追加
+```julia
+julia> df.brand = first.(split.(df.name))
+406-element Vector{SubString{String}}:
+ "chevrolet"
+ "buick"
+ "plymouth"
+ "amc"
+ "ford"
+ ⋮
+ "ford"
+ "vw"
+ "dodge"
+ "ford"
+ "chevy"
+
+julia> df[1:10, ["name", "brand"]]
+10×2 DataFrame
+ Row │ name                       brand     
+     │ String                     SubStrin… 
+─────┼──────────────────────────────────────
+   1 │ chevrolet chevelle malibu  chevrolet
+   2 │ buick skylark 320          buick
+   3 │ plymouth satellite         plymouth
+  ⋮  │             ⋮                  ⋮
+   8 │ plymouth fury iii          plymouth
+   9 │ pontiac catalina           pontiac
+  10 │ amc ambassador dpl         amc
+                              4 rows omitted
+```
+
+#### 既存データの消去
+```julia
+julia> select!(df, Not([:bramd]))
+```
+
+## 大きなデータを保存し, 使用するためのArrow
+### データの保存
+```julia
+julia> Arrow.write("auto-cleaned.arrow",df)
+"auto-cleaned.arrow"
+```
+
+### DataFrame形式への変換
+```julia
+julia> df2=Arrow.Table("/Users/yoko-h/Desktop/Julia_practice/auto-cleaned.arrow") |> DataFrame
+406×10 DataFrame
+ Row │ mpg       cylinders  displacement  horsepower  weight   acceleration  year     origin   name                       brand     
+     │ Float64?  Float64    Float64       Float64?    Float64  Float64       Float64  Float64  String                     String    
+─────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │     18.0        8.0         307.0       130.0   3504.0          12.0     70.0      1.0  chevrolet chevelle malibu  chevrolet
+   2 │     15.0        8.0         350.0       165.0   3693.0          11.5     70.0      1.0  buick skylark 320          buick
+   3 │     18.0        8.0         318.0       150.0   3436.0          11.0     70.0      1.0  plymouth satellite         plymouth
+  ⋮  │    ⋮          ⋮           ⋮            ⋮          ⋮          ⋮           ⋮        ⋮                 ⋮                  ⋮
+ 404 │     32.0        4.0         135.0        84.0   2295.0          11.6     82.0      1.0  dodge rampage              dodge
+ 405 │     28.0        4.0         120.0        79.0   2625.0          18.6     82.0      1.0  ford ranger                ford
+ 406 │     31.0        4.0         119.0        82.0   2720.0          19.4     82.0      1.0  chevy s-10                 chevy
+                                                                                                                    400 rows omitted
+```
+
+
+#### グループ化
+```julia
+julia> grouped_brands = groupby(df, :brand)
+GroupedDataFrame with 38 groups based on key: brand
+First Group (44 rows): brand = "chevrolet"
+ Row │ mpg        cylinders  displacement  horsepower  weight   acceleration  year     origin   name                              br ⋯
+     │ Float64?   Float64    Float64       Float64?    Float64  Float64       Float64  Float64  String                            Su ⋯
+─────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │      18.0        8.0         307.0       130.0   3504.0          12.0     70.0      1.0  chevrolet chevelle malibu         ch ⋯
+   2 │      14.0        8.0         454.0       220.0   4354.0           9.0     70.0      1.0  chevrolet impala                  ch
+   3 │ missing          8.0         350.0       165.0   4142.0          11.5     70.0      1.0  chevrolet chevelle concours (sw)  ch
+   4 │      15.0        8.0         400.0       150.0   3761.0           9.5     70.0      1.0  chevrolet monte carlo             ch
+  ⋮  │     ⋮          ⋮           ⋮            ⋮          ⋮          ⋮           ⋮        ⋮                    ⋮                     ⋱
+  42 │      27.0        4.0         112.0        88.0   2640.0          18.6     82.0      1.0  chevrolet cavalier wagon          ch ⋯
+  43 │      34.0        4.0         112.0        88.0   2395.0          18.0     82.0      1.0  chevrolet cavalier 2-door         ch
+  44 │      27.0        4.0         151.0        90.0   2950.0          17.3     82.0      1.0  chevrolet camaro                  ch
+                                                                                                          1 column and 37 rows omitted
+⋮
+Last Group (1 row): brand = "nissan"
+ Row │ mpg       cylinders  displacement  horsepower  weight   acceleration  year     origin   name              brand     
+     │ Float64?  Float64    Float64       Float64?    Float64  Float64       Float64  Float64  String            SubStrin… 
+─────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │     36.0        4.0         120.0        88.0   2160.0          14.5     82.0      3.0  nissan stanza xe  nissan
+```
+
+#### グループ化したものの表示
+```julia
+julia> grouped_brands[("ford", )]
+53×10 SubDataFrame
+ Row │ mpg        cylinders  displacement  horsepower  weight   acceleration  year     origin   name                   brand     
+     │ Float64?   Float64    Float64       Float64?    Float64  Float64       Float64  Float64  String                 SubStrin… 
+─────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │      17.0        8.0         302.0       140.0   3449.0          10.5     70.0      1.0  ford torino            ford
+   2 │      15.0        8.0         429.0       198.0   4341.0          10.0     70.0      1.0  ford galaxie 500       ford
+   3 │ missing          8.0         351.0       153.0   4034.0          11.0     70.0      1.0  ford torino (sw)       ford
+  ⋮  │     ⋮          ⋮           ⋮            ⋮          ⋮          ⋮           ⋮        ⋮               ⋮                ⋮
+  51 │      22.0        6.0         232.0       112.0   2835.0          14.7     82.0      1.0  ford granada l         ford
+  52 │      27.0        4.0         140.0        86.0   2790.0          15.6     82.0      1.0  ford mustang gl        ford
+  53 │      28.0        4.0         120.0        79.0   2625.0          18.6     82.0      1.0  ford ranger            ford
+                                                                                                                  47 rows omitted
+```
+
+## 統計パッケージStatisticsの利用
+### グループごとの演算
+```julia
+julia> brand_mpg=combine(grouped_brands #=結合したいものの指表=#, :mpg => mean #=適用する内容.=#) ## meanを変えれば様々な関数を適用できる.
+37×2 DataFrame
+ Row │ brand          mpg_mean 
+     │ SubStrin…      Float64  
+─────┼─────────────────────────
+   1 │ chevrolet       20.4721
+   2 │ buick           19.1824
+   3 │ plymouth        21.7032
+  ⋮  │       ⋮           ⋮
+  35 │ vokswagen       29.8
+  36 │ triumph         35.0
+  37 │ nissan          36.0
+                31 rows omitted
+```
+
+#### データのソート
+```julia
+julia> sort!(brand_mpg, :mpg_mean, rev=true)
+37×2 DataFrame
+ Row │ brand      mpg_mean 
+     │ SubStrin…  Float64  
+─────┼─────────────────────
+   1 │ vw          39.0167
+   2 │ nissan      36.0
+   3 │ triumph     35.0
+  ⋮  │     ⋮         ⋮
+  35 │ chrysler    17.2667
+  36 │ chevroelt   16.0
+  37 │ hi           9.0
+            31 rows omitted
 ```
 
 ## PythonおよびRパッケージ利用
