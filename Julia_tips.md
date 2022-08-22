@@ -1040,7 +1040,7 @@ julia> describe(df, :mean, :std)
    8 │ y4        7.50091  2.03058
 ```
 
-#### DataFrame内のデータのベクトル変換
+#### hogehogehogehogehoge
 ```julia
 julia> X=Matrix(df[!,[:hoge]])
 
