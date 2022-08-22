@@ -1015,6 +1015,13 @@ julia> select(df,r"x")
                     5 rows omitted
 ```
 
+#### コピー配列をつくるか, 新しくメモリを作る
+```julia
+julia> X=houses[!,[:hoge]] ## 新しくメモリを作る(速い)
+
+julia> X=houses[:,[:median_house_value]] # コピーを作る.
+```
+
 
 #### DataFrame内のデータの平均と分散
 ```julia
@@ -1033,8 +1040,20 @@ julia> describe(df, :mean, :std)
    8 │ y4        7.50091  2.03058
 ```
 
+#### DataFrame内のデータのベクトル変換
+```julia
+julia> X=Matrix(df[!,[:hoge]])
+
+julia> p=X'
+
+julia> p.assignment
+```
+
+
 #### DataFrame内のデータの行列変換
 ```julia
+julia> Matrix(df[!,[:hoge]])
+
 julia> Matrix(select(df, r"x"))
 11×4 Matrix{Int64}:
  10  10  10   8
