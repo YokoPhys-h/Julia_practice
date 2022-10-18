@@ -877,7 +877,7 @@ julia> #タブをスペースに
 julia> str_no_tab = replace(raw_str, '\t' => ' ')
 "18.0   8.   307.0      130.0      3504.      12.0   70.  1. \"chevrolet chevelle malibu\"\n15.0   8.   350.0      165.0      3693.      11.5   70.  1. \"buick skylark 320\"\n18.0   8.   318.0      150.0      3436.      11.0   70.  1. \"plymouth satellite\"\n16.0   8.   304.0      150.0      3433.      12.0   70.  1. \"amc rebel sst\"\n17.0   8.   302.0      140.0      3449.      10.5   70.  1. \"ford torino\"\n15.0   8.   429.0      198.0      4341.      10.0   70.  1. " ⋯ 31232 bytes ⋯ " 2.2\"\n27.0   4.   151.0      90.00      2950.      17.3   82.  1. \"chevrolet camaro\"\n27.0   4.   140.0      86.00      2790.      15.6   82.  1. \"ford mustang gl\"\n44.0   4.   97.00      52.00      2130.      24.6   82.  2. \"vw pickup\"\n32.0   4.   135.0      84.00      2295.      11.6   82.  1. \"dodge rampage\"\n28.0   4.   120.0      79.00      2625.      18.6   82.  1. \"ford ranger\"\n31.0   4.   119.0      82.00      2720.      19.4   82.  1. \"chevy s-10\"\n"
 
-julia> # 読み込み形式変換
+julia> # 読み込み形式変換(データの読み書きに便利な型)
 julia> io=IOBuffer(str_no_tab)
 IOBuffer(data=UInt8[...], readable=true, writable=false, seekable=true, append=false, size=32149, maxsize=Inf, ptr=1, mark=-1)
 
@@ -899,6 +899,28 @@ julia> df=CSV.File(io,
  405 │     28.0        4.0         120.0        79.0   2625.0          18.6     82.0      1.0  ford ranger
  406 │     31.0        4.0         119.0        82.0   2720.0          19.4     82.0      1.0  chevy s-10
                                                                                                          400 rows omitted
+```
+
+#### 行列形式の読み込み
+```julia
+julia> x=rand(5,5)
+5×5 Matrix{Float64}:
+ 0.538828  0.315478  0.0633926  0.713336   0.00883301
+ 0.876346  0.657211  0.848946   0.01181    0.507184
+ 0.318878  0.715611  0.957552   0.0930531  0.166859
+ 0.981529  0.902519  0.521348   0.17897    0.656186
+ 0.750458  0.144593  0.135955   0.791016   0.292874
+
+julia> DataFrame(x, :auto)
+5×5 DataFrame
+ Row │ x1        x2        x3         x4         x5         
+     │ Float64   Float64   Float64    Float64    Float64    
+─────┼──────────────────────────────────────────────────────
+   1 │ 0.538828  0.315478  0.0633926  0.713336   0.00883301
+   2 │ 0.876346  0.657211  0.848946   0.01181    0.507184
+   3 │ 0.318878  0.715611  0.957552   0.0930531  0.166859
+   4 │ 0.981529  0.902519  0.521348   0.17897    0.656186
+   5 │ 0.750458  0.144593  0.135955   0.791016   0.292874
 ```
 
 #### 読み込んだデータの列名の表示
@@ -988,7 +1010,7 @@ julia> df[1:4, :x1]
  13
   9
 
-julia> df[df.A.>3,:]
+julia> df[df.A.>3,:] ## それぞれの行に適用するからブロードキャスト.
 2×4 DataFrame
 │ Row │ A     │ B        │ C      │ D     │
 │     │ Int64 │ Float64  │ String │ Int64 │
@@ -996,6 +1018,54 @@ julia> df[df.A.>3,:]
 │ 1   │ 4     │ 0.578579 │ A      │ 160   │
 │ 2   │ 5     │ 0.142839 │ B      │ 200   │
 
+julia> df[df.A. == "hoge",:]
+```
+
+#### DataFrame内のデータ情報describe
+```julia
+julia> describe(df)
+
+8 rows × 7 columns
+
+variable	mean	min	median	max	nmissing	eltype
+Symbol	Float64	Real	Float64	Real	Int64	DataType
+1	x1	9.0	4	9.0	14	0	Int64
+2	x2	9.0	4	9.0	14	0	Int64
+3	x3	9.0	4	9.0	14	0	Int64
+4	x4	9.0	8	8.0	19	0	Int64
+5	y1	7.50091	4.26	7.58	10.84	0	Float64
+6	y2	7.50091	3.1	8.14	9.26	0	Float64
+7	y3	7.5	5.39	7.11	12.74	0	Float64
+8	y4	7.50091	5.25	7.04	12.5	0	Float64
+
+```
+
+#### DataFrame内のデータの平均と分散
+```julia
+julia> describe(df, :mean, :std)
+8×3 DataFrame
+ Row │ variable  mean     std     
+     │ Symbol    Float64  Float64 
+─────┼────────────────────────────
+   1 │ x1        9.0      3.31662
+   2 │ x2        9.0      3.31662
+   3 │ x3        9.0      3.31662
+   4 │ x4        9.0      3.31662
+   5 │ y1        7.50091  2.03157
+   6 │ y2        7.50091  2.03166
+   7 │ y3        7.5      2.03042
+   8 │ y4        7.50091  2.03058
+```
+
+#### DataFrame内の行数, 列数を確認
+```julia
+julia> nrow(df), ncol(df)
+
+(11, 8)
+
+julia> size(df)
+
+(11, 8)
 ```
 
 #### 特定の文字列を含むものを出力
@@ -1022,32 +1092,6 @@ julia> X=houses[!,[:hoge]] ## 新しくメモリを作る(速い)
 julia> X=houses[:,[:median_house_value]] # コピーを作る.
 ```
 
-
-#### DataFrame内のデータの平均と分散
-```julia
-julia> describe(df, :mean, :std)
-8×3 DataFrame
- Row │ variable  mean     std     
-     │ Symbol    Float64  Float64 
-─────┼────────────────────────────
-   1 │ x1        9.0      3.31662
-   2 │ x2        9.0      3.31662
-   3 │ x3        9.0      3.31662
-   4 │ x4        9.0      3.31662
-   5 │ y1        7.50091  2.03157
-   6 │ y2        7.50091  2.03166
-   7 │ y3        7.5      2.03042
-   8 │ y4        7.50091  2.03058
-```
-
-#### hogehogehogehogehoge
-```julia
-julia> X=Matrix(df[!,[:hoge]])
-
-julia> p=X'
-
-julia> p.assignment
-```
 
 
 #### DataFrame内のデータの行列変換
@@ -1189,7 +1233,7 @@ Last Group (1 row): brand = "nissan"
 
 #### グループ化したものの表示
 ```julia
-julia> grouped_brands[("ford", )]
+julia> grouped_brands[("ford", )] ## 文字列からタプルに変換して取り出す.
 53×10 SubDataFrame
  Row │ mpg        cylinders  displacement  horsepower  weight   acceleration  year     origin   name                   brand     
      │ Float64?   Float64    Float64       Float64?    Float64  Float64       Float64  Float64  String                 SubStrin… 
@@ -1276,6 +1320,15 @@ julia> plot(x, y,
             opacity=0.8 ## 透明度
             )
 ```
+
+### 複雑な関数のプロット
+```julia
+julia> plot(
+       x -> sin(x)^2 + cos(x)^3,
+       -2π, 2π, ## 範囲
+            )
+```
+
 
 ### 2つ以上のグラフを同時プロット
 ```julia
