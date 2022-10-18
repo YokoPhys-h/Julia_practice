@@ -293,7 +293,7 @@ julia> minimum([1 20 15])
 1
 ```
 
-### 一様分布で初期化された配列
+### 一様分布で初期化された行列
 ```julia
 julia> rand(Float32,3,4)
 3×4 Matrix{Float32}:
@@ -301,7 +301,7 @@ julia> rand(Float32,3,4)
  0.726887  0.40095   0.387763   0.362832
  0.597126  0.955296  0.697196   0.509099
 ```
-### 正規分布で初期化された配列
+### 正規分布で初期化された行列
 ```julia
 julia> randn(Float32,3,4)
 3×4 Matrix{Float32}:
@@ -310,7 +310,7 @@ julia> randn(Float32,3,4)
   0.120444  -1.22306   0.651821  -0.239374
 ```
 
-### 1で初期化された配列
+### 1で初期化された行列
 ```julia
 julia> ones(Float32,3,4)
 3×4 Matrix{Float32}:
@@ -319,7 +319,7 @@ julia> ones(Float32,3,4)
  1.0  1.0  1.0  1.0
 ```
 
-### 0で初期化された配列
+### 0で初期化された行列
 ```julia
 julia> zeros(Float32,3,4)
 3×4 Matrix{Float32}:
@@ -336,20 +336,20 @@ julia> fill(1.3,2,4)
  1.3  1.3  1.3  1.3
 ```
 
-### 配列の要素の型
+### 行列の要素の型
 ```julia
 julia> A=rand(2,3);
 julia> eltype(A)
 Float64
 ```
 
-### 配列の要素数
+### 行列の要素数
 ```julia
 julia> length(A)
 6
 ```
 
-### 配列のサイズ  
+### 行列のサイズ  
 ```julia
 julia> B=rand(3,2)
 3×2 Matrix{Float64}:
@@ -361,7 +361,7 @@ julia> size(B)
 (3, 2)
 ```
 
-### 配列の次元の数
+### 行列の次元の数
 ```julia
 julia> B=rand(3,4)
 3×4 Matrix{Float64}:
@@ -371,6 +371,25 @@ julia> B=rand(3,4)
 
 julia> ndims(B)
 2
+```
+
+## 配列(ベクトル)を行列に変換する
+```julia
+julia> vec=[1, 2, 3]
+3-element Vector{Int64}:
+ 1
+ 2
+ 3
+
+julia> reshape(vec,1,length(vec))
+1×3 Matrix{Int64}:
+ 1  2  3
+
+julia> reshape(vec,length(vec),1)
+3×1 Matrix{Int64}:
+ 1
+ 2
+ 3
 ```
 
 ### 配列の各要素に関数を適用するmap
