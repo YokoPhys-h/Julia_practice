@@ -373,6 +373,18 @@ julia> ndims(B)
 2
 ```
 
+### 行列の行数や列数を取得する
+```julia
+julia> A=rand(10,25);
+
+julia> size(A, 1) ## 行数
+10
+
+julia> size(A, 2) ## 列数
+25
+```
+
+
 ### 配列(ベクトル)を行列に変換する
 ```julia
 julia> vec=[1, 2, 3]
