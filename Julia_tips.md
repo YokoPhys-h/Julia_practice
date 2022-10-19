@@ -404,6 +404,29 @@ julia> reshape(vec,length(vec),1)
  3
 ```
 
+## 配列の配列(vector of vector)から行列に変換
+```julia
+julia> a = [[1, 2], [3, 4], [5, 6]]
+julia> reduce(hcat, a)
+2×3 Matrix{Int64}:
+ 1  3  5
+ 2  4  6
+julia> reduce(vcat, a')
+3×2 Matrix{Int64}:
+ 1  2
+ 3  4
+ 5  6
+julia> [a...;;]
+2×3 Matrix{Int64}:
+ 1  3  5
+ 2  4  6
+julia> [a'...;]
+3×2 Matrix{Int64}:
+ 1  2
+ 3  4
+ 5  6
+```
+
 ### 配列からのランダムサンプリング
 ```julia
 
