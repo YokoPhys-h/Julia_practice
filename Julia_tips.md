@@ -373,7 +373,7 @@ julia> ndims(B)
 2
 ```
 
-## 配列(ベクトル)を行列に変換する
+### 配列(ベクトル)を行列に変換する
 ```julia
 julia> vec=[1, 2, 3]
 3-element Vector{Int64}:
@@ -390,6 +390,30 @@ julia> reshape(vec,length(vec),1)
  1
  2
  3
+```
+
+### 配列からのランダムサンプリング
+```julia
+
+julia> using StatsBase
+
+## 重複を許す場合
+julia> sample(1:10, 5)
+5-element Vector{Int64}:
+ 8
+ 7
+ 8
+ 1
+ 4
+
+## 重複を許さない場合
+julia> sample(1:10, 5, replace=false)
+5-element Vector{Int64}:
+  5
+  7
+  4
+  3
+ 10
 ```
 
 ### 配列の各要素に関数を適用するmap
