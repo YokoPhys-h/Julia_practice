@@ -855,6 +855,8 @@ julia> atom1.v
 
 julia> atom1.mass
 0.3
+
+aaaa
 ```
 
 ### structの値の初期化をstructの中でやる
@@ -863,7 +865,7 @@ julia> struct TestA
         a ::Float64
         b ::Array{Float64,1}
 
-        TestA() = new(0,rand(3))
+        TestA() = new(0,rand(3)) ## 関数
       end
 
 julia> TestA()
