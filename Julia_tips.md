@@ -691,7 +691,7 @@ Set{Float64}[]
 
 
 
-## 線形代数演算
+## 線形代数演算(LinearAlgebra)
 ### 内積
 ```julia
 julia> using LinearAlgebra
@@ -827,8 +827,8 @@ julia> tr(A)
 ```
 
 ## パラメータや変数をまとめる: struct
-struct: 一度定義したら中身を変更できない.
-mutable struct: 中身の変更が可能.
+- struct: 一度定義したら中身を変更できない.
+- mutable struct: 中身の変更が可能.
 ```julia
 julia> m1=0.3; r1=[0.2,0.5,0.1]; v1=[0.3,2,-1];
 
@@ -855,6 +855,25 @@ julia> atom1.v
 
 julia> atom1.mass
 0.3
+```
+
+### structの値の初期化をstructの中でやる
+```julia
+julia> struct TestA
+        a ::Float64
+        b ::Array{Float64,1}
+
+        TestA() = new(0,rand(3))
+      end
+
+julia> TestA()
+TestA(0.0, [0.27700298652239697, 0.5339364562180758, 0.1052837730818772])
+
+julia> TestA().B
+3-element Vector{Float64}:
+ 0.5714378057743423
+ 0.3834372722934797
+ 0.03139701541613438
 ```
 
 
